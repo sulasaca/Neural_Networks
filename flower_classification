@@ -91,11 +91,15 @@ criterion = nn.NLLLoss()
 optimizer = optim.Adam(model.classifier.parameters(), lr=0.001)
 
 # TODO: Build and train your network
-def model_train_validate(model_param, criterion_param, optimizer_param, data_loader_param, epochs=3, print_every=40):
+def model_train_validate(model_param, criterion_param, optimizer_param, data_loader_param, gpu_param, epochs=3, print_every=40):
 
 
     with active_session():
-        model_param.to(device)
+        if gpu_param:
+            model_param.to(device)
+        else:
+            model.cpu()
+            
         for e in range(epochs):
             train_count = 0
             valid_count = 0
@@ -112,8 +116,10 @@ def model_train_validate(model_param, criterion_param, optimizer_param, data_loa
                 train_count += 1
 
                 model_param.train()
-                inputs, labels = inputs.to(device), labels.to(device)
-
+                
+                if gpu_param:
+                    inputs, labels = inputs.to(device), labels.to(device)
+               
                 optimizer_param.zero_grad()
 
                 # Forward and backward passes
@@ -153,7 +159,7 @@ def model_train_validate(model_param, criterion_param, optimizer_param, data_loa
             print('\nValidation accuracy: {:.3f}'.format(correct/total*100))
     return model_param
         
-model = model_train_validate(model, criterion, optimizer, data_loader)    
+model = model_train_validate(model, criterion, optimizer, data_loader, gpu)    
 
 
 # Test network
