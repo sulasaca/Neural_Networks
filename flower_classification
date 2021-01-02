@@ -151,13 +151,13 @@ def model_train_validate(model_param, criterion_param, optimizer_param, data_loa
                 print("Valid Loss: {:.4f}".format(valid_loss/len(data_loader_param['valid_loader'])))
                 valid_loss = 0 
             print('\nValidation accuracy: {:.3f}'.format(correct/total*100))
-
+    return model_param
         
-model_train_validate(model, criterion, optimizer, data_loader)      
+model = model_train_validate(model, criterion, optimizer, data_loader)    
 
 
 # Test network
-def test_accuracy(mode_param, data_loader_param):    
+def test_accuracy(model_param, data_loader_param):    
     correct = 0
     total = 0
     model_param.eval()
@@ -171,6 +171,7 @@ def test_accuracy(mode_param, data_loader_param):
 
     print('Accuracy of the network: %d %%' % (100 * correct / total))
 test_accuracy(model, data_loader)
+
 
 #plt.figure()
 plt.plot(train_loss, label='Training loss')
@@ -186,20 +187,17 @@ plt.legend()
 dest_dir = None
 
 # TODO: Save the checkpoint 
-def save_checkpoint(model_param, optimizer_param, class_to_idx, dest_dir, model_architect):
-model.class_to_idx = image_datasets['train_data'].class_to_idx
+def save_checkpoint(model_param, optimizer_param, filename_param, train_data_param, dest_dir_param=None):
+    
+    model_param.class_to_idx = train_data_param.class_to_idx
 
-checkpoint = {'input_size': 25088,
-              'output_size': 102,
-              'learning_rate': 0.001,
-              'batch_size': 32,
-              'classifier': classifier,
-              'epochs': epochs,
-               'state_dict': model.state_dict(),
-               'optimizer': optimizer.state_dict(),
-               'class_to_idx': model.class_to_idx} 
-            
-torch.save(checkpoint, 'checkpoint.pth')
+    checkpoint = {'classifier': model_param.classifier,
+                   'state_dict': model_param.state_dict(), 
+                   'optimizer': optimizer_param,
+                   'optimizer_state_dict': optimizer_param.state_dict(),
+                   'class_to_idx': model_param.class_to_idx} 
+    checkpoint_path = dest_dir_param + filename_param
+    torch.save(checkpoint, checkpoint_path)
 
 # TODO: Write a function that loads a checkpoint and rebuilds the model
 
@@ -207,21 +205,20 @@ def load_checkpoint(checkpoint_path):
     checkpoint = torch.load(checkpoint_path)
     model = models.vgg16_bn(pretrained=True)
     
-    #for param in model.parameters():
-    #    param.requires_grad = False
+    for param in model.parameters():
+        param.requires_grad = False
     
     model.class_to_dix = checkpoint['class_to_idx']
     
     model.classifier = checkpoint['classifier']
-    model.epochs = checkpoint['epochs']
+    
     model.load_state_dict(checkpoint['state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer'])
-    #model.load_state_dict(torch.load('classifier.pth'))
+    optimizer = checkpoint['optimizer']
+    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     
     return model, optimizer
     
-model, optimizer = load_checkpoint('checkpoint.pth')
-model
+model, optimizer = load_checkpoint('vgg16_bn_flower_classification.pth')    
 
 any_img_path = test_dir + '/34/image_06961.jpg'
 img = Image.open(any_img_path)
@@ -244,10 +241,7 @@ def process_image(image):
                          
     pil_img = transform(load_img).float()
     pil_img = pil_img.unsqueeze(0)                     
-    pil_img_array = np.array(pil_img)
-    return pil_img_array                     
-    
-processed_image = process_image(image)
+    return np.array(pil_img)
 
 
 #To check your work, the function below converts a PyTorch tensor and displays it in the notebook. If your process_image function works, running the output through this function should return the original image (except for the cropped out portions).
@@ -280,78 +274,75 @@ img_path = './flowers/test/7/' + img
 with Image.open(img_path) as image:
     plt.imshow(image)
     
-Class Prediction
-Once you can get images in the correct format, it's time to write a function for making predictions with your model. A common practice is to predict the top 5 or so (usually called top- 𝐾
-K
- ) most probable classes. You'll want to calculate the class probabilities then find the  𝐾
-K
-  largest values.
-To get the top  𝐾
-K
-  largest values in a tensor use x.topk(k). This method returns both the highest k probabilities and the indices of those probabilities corresponding to the classes. You need to convert from these indices to the actual class labels using class_to_idx which hopefully you added to the model or from an ImageFolder you used to load the data (see here). Make sure to invert the dictionary so you get a mapping from index to class as well.
-Again, this method should take a path to an image and a model checkpoint, then return the probabilities and classes.
-probs, classes = predict(image_path, model)
-print(probs)
-print(classes)
-> [ 0.01558163  0.01541934  0.01452626  0.01443549  0.01407339]
-> ['70', '3', '45', '62', '55']
-In [ ]:
+#Class Prediction
+#Once you can get images in the correct format, it's time to write a function for making predictions with your model. A common practice is to predict the top 5 or so (usually called top- 𝐾
+#K
+# ) most probable classes. You'll want to calculate the class probabilities then find the  𝐾
+#K
+#  largest values.
+#To get the top  𝐾
+#K
+#  largest values in a tensor use x.topk(k). This method returns both the highest k probabilities and the indices of those probabilities corresponding to the classes. You need to convert from these indices to the actual class labels using class_to_idx which hopefully you added to the model or from an ImageFolder you used to load the data (see here). Make sure to invert the dictionary so you get a mapping from index to class as well.
+#Again, this method should take a path to an image and a model checkpoint, then return the probabilities and classes.
+#probs, classes = predict(image_path, model)
+#print(probs)
+#print(classes)
+#> [ 0.01558163  0.01541934  0.01452626  0.01443549  0.01407339]
+#> ['70', '3', '45', '62', '55']
+#In [ ]:
 
-def predict(image_path, model, topk=5):
+def predict(image_path_param, model_param, k_param=5):
     ''' Predict the class (or classes) of an image using a trained deep learning model.
     '''
     
     # TODO: Implement the code to predict the class from an image file
-    model.eval()
-    transform_pil = process_image(image_path)
-    transform_pil = torch.from_numpy(transform_pil)
+    model_param.eval()
+    pil_img = process_image(image_path_param)
+    pil_img = torch.from_numpy(pil_img)
    
-    transform_pil = transform_pil.cuda()
-    model = model.cuda()
+    pil_img = pil_img.cuda()
+    model_param = model_param.cuda()
         
-    output = model(transform_pil)
+    output = model_param(pil_img)
     
-    m = nn.Softmax()
-    output = m(output)
-​
-    probs = torch.topk(output,5)[0]
-    labels = torch.topk(output,5)[1]
+    output = nn.Softmax()(output)
+
+    probs = torch.topk(output,k_param)[0]
+    labels = torch.topk(output,k_param)[1]
     
    
-    probs = prob.cpu()
+    probs = probs.cpu()
     labels = labels.cpu()
         
-    print(transform_pil)    
-return transform_pil, probs.detach().numpy(), labels.detach().numpy()     
-
+    print(pil_img)    
+    return pil_img, probs.detach().numpy(), labels.detach().numpy()    
 
 # TODO: Display an image along with the top 5 classes
-def display_pred_img(image_path, model, topk):
-    img, probs, preds = predict(image_path, model, topk)
+def display_pred_img(image_path_param, model_param, k_param=5):
+    image, probabilities, predictions = predict(image_path_param, model_param, k_param)
     
-    idx_to_name = {category: cat_to_name[str(category)] for category in preds[0]}
+    idx_to_name = {category: cat_to_name[str(category)] for category in predictions[0]}
     
     class_names = list(idx_to_name.values())
     
-    if gpu_mode:
-        img = img.cpu()
+    image = image.cpu().squeeze()
         
-    result = pd.DataFrame({'probability': probs[0]}, index = class_names) 
+    df = pd.DataFrame({'probability': probabilities[0]}, index = class_names) 
     
     # plot image
-    plt.figure(figsize =(15,4))
+    plt.figure(figsize =(16,5))
     ax = plt.subplot(1,2,1)
-    ax = imshow(img, ax=ax)
+    ax = imshow(image, ax=ax)
     
     ax.set_title(class_names[0], size=20)
     
     ax = plt.subplot(1,2,2)
     
-    result.sort_values('probability')['probability'].plot.barh(color='green', ax=ax)
+    df.sort_values('probability')['probability'].plot.barh(color='green', ax=ax)
     
     plt.xlabel('Predicted Probability')
     
     
-img_path_test = test_dir + '/34/image_06961.jpg'
+img_path_test = './flowers/test/74/image_01173.jpg'
 
-display_pred_img(img_path_test, model, 5)    
+display_pred_img(img_path_test, model)
