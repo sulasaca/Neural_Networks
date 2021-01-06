@@ -9,8 +9,6 @@ from PIL import Image
 import torch
 from torch import nn
 from torch import optim
-#from torch import Tensor
-#import torch.nn.functional as F
 from torch.autograd import Variable
 import torchvision
 from torchvision import datasets, models, transforms
@@ -117,7 +115,8 @@ def save_checkpoint(model_param, optimizer_param, train_data_param, filename_par
                    'optimizer': optimizer_param,
                    'optimizer_state_dict': optimizer_param.state_dict(),
                    'class_to_idx': model_param.class_to_idx} 
-    checkpoint_path = dest_dir_param + filename_param
+    checkpoint_path = dest_dir_param + "/" + filename_param
+    print("save_checkpoint() to file : " + checkpoint_path)
     torch.save(checkpoint, checkpoint_path)
 
 
