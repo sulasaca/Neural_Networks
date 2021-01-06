@@ -202,7 +202,10 @@ def save_checkpoint(model_param, optimizer_param, filename_param, train_data_par
                    'optimizer': optimizer_param,
                    'optimizer_state_dict': optimizer_param.state_dict(),
                    'class_to_idx': model_param.class_to_idx} 
-    checkpoint_path = dest_dir_param + filename_param
+    # use local directory if none specified
+    if dest_dir_param == None:
+        dest_dir_param = "."
+    checkpoint_path = dest_dir_param + "/" + filename_param
     torch.save(checkpoint, checkpoint_path)
 
 # TODO: Write a function that loads a checkpoint and rebuilds the model
@@ -327,13 +330,14 @@ def predict(image_path_param, model_param, k_param=5):
 def display_pred_img(image_path_param, model_param, k_param=5):
     image, probabilities, predictions = predict(image_path_param, model_param, k_param)
     
-    idx_to_name = {category: cat_to_name[str(category)] for category in predictions[0]}
-    
-    class_names = list(idx_to_name.values())
+    categories = []
+    for idx in predictions[0]:
+        categories.append(cat_to_name[str(idx)])        
+    print("categories: " + str(categories))
     
     image = image.cpu().squeeze()
         
-    df = pd.DataFrame({'probability': probabilities[0]}, index = class_names) 
+    df = pd.DataFrame({'probability': probabilities[0]}, index = categories) 
     
     # plot image
     plt.figure(figsize =(16,5))
