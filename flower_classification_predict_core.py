@@ -22,17 +22,28 @@ from workspace_utils import active_session
 
 
 def load_checkpoint(checkpoint_path):
+    print("loading checkpoint " + checkpoint_path)
     checkpoint = torch.load(checkpoint_path)
-    model = models.vgg16_bn(pretrained=True)
+    
+    if 'vgg16_bn' in checkpoint_path:
+        model = models.vgg16_bn(pretrained=True)
+    elif 'vgg13' in checkpoint_path:
+        model = models.vgg13(pretrained=True)
+    else:
+        print("Load checkpoint error : model not supported")
+        return
     
     for param in model.parameters():
         param.requires_grad = False
+    
     
     model.class_to_dix = checkpoint['class_to_idx']
     
     model.classifier = checkpoint['classifier']
     
-    model.load_state_dict(checkpoint['state_dict'])
+    if 'vgg16_bn' in checkpoint_path:
+        model.load_state_dict(checkpoint['state_dict'])
+        
     optimizer = checkpoint['optimizer']
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     
@@ -79,19 +90,24 @@ def imshow(image, ax=None, title=None):
     
     return ax
 
-def predict(image_path_param, model_param, k_param=5):
+def predict(image_path_param, model_param, gpu_param=True, k_param=5):
     ''' Predict the class (or classes) of an image using a trained deep learning model.
     '''
     
     # TODO: Implement the code to predict the class from an image file
     print("predict ...")
     model_param.eval()
+    
+    
     pil_img = process_image(image_path_param)
     pil_img = torch.from_numpy(pil_img)
-   
-    pil_img = pil_img.cuda()
-    model_param = model_param.cuda()
-        
+    
+    if gpu_param:
+        pil_img = pil_img.cuda()
+        model_param = model_param.cuda()
+    else:
+        pil_img = pil_img.cpu()
+        model_param = model_param.cpu()
     output = model_param(pil_img)
     
     output = nn.Softmax()(output)
@@ -99,9 +115,11 @@ def predict(image_path_param, model_param, k_param=5):
     probs = torch.topk(output,k_param)[0]
     labels = torch.topk(output,k_param)[1]
     
-   
     probs = probs.cpu()
     labels = labels.cpu()
+    
+    print("predict : probs " + str(probs.detach().numpy()))
+    print("predict + labels " + str(labels.detach().numpy()))
     
     return pil_img, probs.detach().numpy(), labels.detach().numpy()    
 
