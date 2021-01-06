@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import sys
 import os, random
+import os.path
 import time, json
 from PIL import Image
 import torch
@@ -43,13 +44,17 @@ def main():
     (options, args) = parser.parse_args()
     if options.save_directory != None:
         checkpoint_save_dir = options.save_directory
+        if not os.path.isdir(checkpoint_save_dir):
+            print("Error: checkpoint directory '" + checkpoint_save_dir + "' does not exist")
+            return
     else:
-        checkpoint_save_dir = "no checkpoint save directory not specified"
+        # assume local directory if parameter not specified
+        checkpoint_save_dir = "."
     
     if options.architecture != None:
         model_arch = options.architecture
-        if model_arch != "vgg16_bn" | model_arch != "resnet18":
-            print("Model " + model_arch + " is not supported. Only vgg16_bn or resnet1010 model is supported")
+        if model_arch != "vgg16_bn" and model_arch != "vgg13":
+            print("Model " + model_arch + " is not supported. Only vgg16_bn or vgg13 model is supported")
             return
     else:
         model_arch = "vgg16_bn"
@@ -135,14 +140,17 @@ def main():
 
     if model_arch == "vgg16_bn":
         model = models.vgg16_bn(pretrained=True)
-    elif model_arch == "resnet18":
-        model = models.resnet18(pretrained=True)
+    elif model_arch == "vgg13":
+        model = models.vgg11(pretrained=True)
     else:
         print("Model " + model_arch + " is not supported")
         return
 
     for param in model.parameters():
-        param.requires_grad = False
+        #if model_arch == "vgg16_bn":
+            param.requires_grad = False
+        #else:
+            #param.requires_grad = True
 
     classifier = nn.Sequential(OrderedDict([
         ('fc1', nn.Linear(25088,hidden_units)),
@@ -158,7 +166,7 @@ def main():
     model = tc.model_train_validate(model, criterion, optimizer, data_loader, gpu, epochs)   
     tc.test_accuracy(model, data_loader)
     tc.save_checkpoint(model, optimizer, image_datasets['train_data'],
-                       'vgg16_bn_flower_classification.pt', checkpoint_save_dir)      
+                       model_arch + '_flower_classification.pt', checkpoint_save_dir)      
        
     
 if __name__ == "__main__":
