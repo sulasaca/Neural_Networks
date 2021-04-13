@@ -12,9 +12,9 @@ determine the best hyperparameters.</p>
 
 <p>Command line applications train.py and predict.py</p>
 
-For command line applications there is an option to select either VGG13, VGG16_bn, or Densenet models.
+<p>For command line applications there is an option to select either VGG13, VGG16_bn, or Densenet models.</p>
 
-Following arguments are mandatory or optional for train.py: <br />
+<p>Following arguments are mandatory or optional for train.py: </p>
 
 'data_dir'. 'Provide data directory. Mandatory argument', type = str <br />
 '--save_dir'. 'Provide saving directory. Optional argument', type = str <br />
@@ -24,10 +24,10 @@ Following arguments are mandatory or optional for train.py: <br />
 '--epochs'. 'Number of epochs'. Default value is 3, type = int <br />
 '--GPU'. "Option to use GPU", type = str <br />
 
-Following arguments are mandatory or optional for predict.py
+<p>Following arguments are mandatory or optional for predict.py: </p>
 
-'load_img'. 'Provide path to image. Mandatory argument', type = str
-'pil_img'. 'Provide path to checkpoint. Mandatory argument', type = str
-'--top_k'. 'Top K most likely classes. Optional', type = int
-'--cat_file'. 'Mapping of categories to real names. JSON file name to be provided. Optional', type = str
-'--gpu'. "Option to use GPU. Optional", type = str
+'load_img'. 'Provide path to image. Mandatory argument', type = str <br />
+'pil_img'. 'Provide path to checkpoint. Mandatory argument', type = str <br />
+'--top_k'. 'Top K most likely classes. Optional', type = int <br />
+'--cat_file'. 'Mapping of categories to real names. JSON file name to be provided. Optional', type = str <br />
+'--gpu'. "Option to use GPU. Optional", type = str <br />
