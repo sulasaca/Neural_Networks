@@ -1,28 +1,28 @@
-Project code for Udacity's AI Programming with Python Nanodegree program. 
+<p>Project code for Udacity's AI Programming with Python Nanodegree program. 
 In this project, code developed for an image classifier built with PyTorch, 
-then converted into a command line applications: train.py, predict.py.
+then converted into a command line applications: train.py, predict.py.</p>
 
-The image classifier to recognize different species of flowers. Dataset contains 102 flower categories.
+<p>The image classifier to recognize different species of flowers. Dataset contains 102 flower categories.</p>
 
-In Image Classifier Project, Densenet from torchvision.models pretrained models was used. 
+<p>In Image Classifier Project, Densenet from torchvision.models pretrained models was used. 
 It was loaded as a pre-trained network, based on which defined a new, untrained feed-forward network as a classifier, 
 using ReLU activations and dropout. Trained the classifier layers using backpropagation using 
 the pre-trained network to get the features. The loss and accuracy on the validation set were tracked to 
-determine the best hyperparameters.
+determine the best hyperparameters.</p>
 
-Command line applications train.py and predict.py
+<p>Command line applications train.py and predict.py</p>
 
 For command line applications there is an option to select either VGG13, VGG16_bn, or Densenet models.
 
-Following arguments are mandatory or optional for train.py
+Following arguments are mandatory or optional for train.py: <br />
 
-'data_dir'. 'Provide data directory. Mandatory argument', type = str
-'--save_dir'. 'Provide saving directory. Optional argument', type = str
-'--arch'. 'vgg13', 'vgg16_bn', or 'densenet121' will be used', type = str
-'--learning_rate'. 'Learning rate, default value 0.001', type = float
-'--hidden_units'. 'Hidden units in Classifier. Default value is 512, type = int
-'--epochs'. 'Number of epochs'. Default value is 3, type = int
-'--GPU'. "Option to use GPU", type = str
+'data_dir'. 'Provide data directory. Mandatory argument', type = str <br />
+'--save_dir'. 'Provide saving directory. Optional argument', type = str <br />
+'--arch'. 'vgg13', 'vgg16_bn', or 'densenet121' will be used', type = str <br />
+'--learning_rate'. 'Learning rate, default value 0.001', type = float <br />
+'--hidden_units'. 'Hidden units in Classifier. Default value is 512, type = int <br />
+'--epochs'. 'Number of epochs'. Default value is 3, type = int <br />
+'--GPU'. "Option to use GPU", type = str <br />
 
 Following arguments are mandatory or optional for predict.py
 
