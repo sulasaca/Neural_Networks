@@ -16,7 +16,7 @@ determine the best hyperparameters.</p>
 
 <p>Following arguments are mandatory or optional for train.py: </p>
 
-'data_dir'. 'Provide data directory. Mandatory argument', type = str <br />
+'--data_dir'. 'Provide data directory. Mandatory argument', type = str <br />
 '--save_dir'. 'Provide saving directory. Optional argument', type = str <br />
 '--arch'. 'vgg13', 'vgg16_bn', or 'densenet121' will be used', type = str <br />
 '--learning_rate'. 'Learning rate, default value 0.001', type = float <br />
@@ -26,8 +26,8 @@ determine the best hyperparameters.</p>
 
 <p>Following arguments are mandatory or optional for predict.py: </p>
 
-'load_img'. 'Provide path to image. Mandatory argument', type = str <br />
-'pil_img'. 'Provide path to checkpoint. Mandatory argument', type = str <br />
+'--load_img'. 'Provide path to image. Mandatory argument', type = str <br />
+'--pil_img'. 'Provide path to checkpoint. Mandatory argument', type = str <br />
 '--top_k'. 'Top K most likely classes. Optional', type = int <br />
 '--cat_file'. 'Mapping of categories to real names. JSON file name to be provided. Optional', type = str <br />
 '--gpu'. "Option to use GPU. Optional", type = str <br />
